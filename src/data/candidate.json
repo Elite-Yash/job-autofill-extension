@@ -1,0 +1,25 @@
+{
+    "zip": 0,
+    "city": "California City",
+    "email": "nikhil190.ng@gmail.com",
+    "state": "California City",
+    "gender": "male",
+    "resume": "https://mrd-live.s3.amazonaws.com/mrd-developer-resume/20250709112810USA_Nikhil_Garia_DevSecOps_Engineer_CV.pdf",
+    "address": "California City, CA, USA",
+    "country": "United States",
+    "last_name": "Garia",
+    "first_name": "Nikhil",
+    "mobile_num": "9702584069",
+    "desired_pay": 63751.30859375,
+    "mobile_code": "1",
+    "available_date": "2025-09-22",
+    "expected_salary": 63751.30859375,
+    "seeker_response": [
+        {
+            "a": "4+ years",
+            "q": "what is your total experience",
+            "type": "number"
+        }
+    ],
+    "linkedin_profile_url": "linkedin.com/in/nikhil-garia-1st"
+}
