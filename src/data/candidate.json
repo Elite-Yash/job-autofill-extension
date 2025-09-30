@@ -10,10 +10,11 @@
     "last_name": "Garia",
     "first_name": "Nikhil",
     "mobile_num": "9702584069",
-    "country_code": "+1",
-    "desired_pay": 63751.30859375,
+    "mobile_code": "1 US",
+    "country_code": "+1 US",
+    "desired_pay": 12000,
     "available_date": "2025-09-22",
-    "expected_salary": 63751.30859375,
+    "expected_salary": 12000,
     "middle_name": "S",
     "language": "English",
     "heard_about": "Linkedin",
@@ -39,5 +40,9 @@
             "type": "number"
         }
     ],
-    "linkedin_profile_url": "linkedin.com/in/nikhil-garia-1st"
+    "linkedin_profile_url": "linkedin.com/in/nikhil-garia-1st",
+    "communication_english": "advance",
+    "hybrid_working": "yes",
+    "notice_period": "2 month",
+    "work_at_job_location": "yes"
 }

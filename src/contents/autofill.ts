@@ -1,6 +1,6 @@
 import type { PlasmoCSConfig } from "plasmo"
 import candidate from "../data/candidate.json"
-import { fillInput, fillTextarea, uploadResume } from "~src/utils/formHelper"
+import { fillInput, fillInputForRunSmartRecruiters, fillInputForRunSmartRecruitersNextPage, fillTextarea, goToNextOrSubmit, uploadResume, uploadResumeForRunSmartRecruiters } from "~src/utils/formHelper"
 import { waitForElement, waitForElementReady } from "../utils/waitForElement"
 
 export const config: PlasmoCSConfig = {
@@ -348,8 +348,6 @@ async function handle8foldStep(stepSelector: string, fillFields = true, uploadRe
         }
     }
 
-
-
     const submitBtn = stepForm.querySelector<HTMLButtonElement>("button[data-test-id='position-apply-button']")
     if (submitBtn) {
         submitBtn.click()
@@ -391,30 +389,94 @@ async function runEightfold() {
         console.log("Application form step not found")
     }
 }
+function clickButton(text: string) {
+    const btn = Array.from(document.querySelectorAll("button")).find((b) =>
+        b.textContent?.toLowerCase().includes(text.toLowerCase())
+    )
+    if (btn) {
+        (btn as HTMLButtonElement).click()
+        console.log(`✅ Clicked button: ${text}`)
+    } else {
+        console.log(`❌ Button not found: ${text}`)
+    }
+}
+
+async function fillCommonFields() {
+    await fillInputForRunSmartRecruiters("#first-name-input", candidate.first_name);
+    await fillInputForRunSmartRecruiters("#last-name-input", candidate.last_name);
+    await fillInputForRunSmartRecruiters("#email-input", candidate.email);
+    await fillInputForRunSmartRecruiters("#confirm-email-input", candidate.email);
+    await fillInputForRunSmartRecruiters("#spl-form-element_8", candidate.city, 'city');
+    await fillInputForRunSmartRecruiters("#spl-form-element_3", candidate.mobile_code, 'mobile_code');
+    await fillInputForRunSmartRecruiters("#spl-form-element_3", candidate.mobile_num, 'mobile_num');
+    await fillInputForRunSmartRecruiters("#linkedin-input", candidate.linkedin_profile_url);
+
+    // fillInput("input[name='address']", candidate.address)
+    // fillInput("input[name='state']", candidate.state)
+    // fillInput("input[name='country']", candidate.country)
+    // fillInput("input[name='zip']", String(candidate.zip))
+    // fillInput("input[name='salary']", String(candidate.expected_salary))
+    // fillInput("input[name='availability']", candidate.available_date)
+
+    // Seeker custom responses
+    candidate.seeker_response.forEach((resp, idx) => {
+        const q = resp.q
+        const a = resp.a
+        // try to match by placeholder or label text
+        const input = Array.from(
+            document.querySelectorAll<HTMLInputElement>("input, textarea")
+        ).find(
+            (el) =>
+                el.placeholder?.toLowerCase().includes(q.toLowerCase()) ||
+                el.closest("label")?.textContent?.toLowerCase().includes(q.toLowerCase())
+        )
+        if (input) {
+            if (input.tagName === "TEXTAREA") {
+                ; (input as unknown as HTMLTextAreaElement).value = a
+            } else {
+                ; (input as HTMLInputElement).value = a
+            }
+            input.dispatchEvent(new Event("input", { bubbles: true }))
+            console.log(`✅ Filled seeker response: ${q} → ${a}`)
+        } else {
+            console.log(`❌ Could not find input for seeker response: ${q}`)
+        }
+    })
+}
+async function nextPagefillCommonFields() {
+    await fillInputForRunSmartRecruitersNextPage("expected_salary", candidate.expected_salary);
+    await fillInputForRunSmartRecruitersNextPage("notice_period", candidate.notice_period);
+    await fillInputForRunSmartRecruitersNextPage("hybrid_working", candidate.hybrid_working);
+    await fillInputForRunSmartRecruitersNextPage("communication_english", candidate.communication_english);
+    await fillInputForRunSmartRecruitersNextPage("work_at_job_location", candidate.work_at_job_location);
+    await fillInputForRunSmartRecruitersNextPage("checked");
+}
 
 async function runSmartRecruiters() {
-    console.log("🔍 Waiting for Apply button...")
-    const applyBtn = await waitForElement("button")
-    if (applyBtn) {
-        (applyBtn as HTMLButtonElement).click()
-        console.log("Apply clicked")
-    }
+    clickButton("Apply")
 
-    console.log("⏳ Waiting for form fields...")
-    await waitForElement("input, textarea")
-
-    await fillFieldsFromJSON(candidate)
-
-    const fileInput = await waitForElement("input[type='file']")
-    if (fileInput && candidate.resume) uploadResume("input[type='file']", candidate.resume)
-
-    const submitBtn = await waitForElement("button[type='submit']")
-    if (submitBtn) {
-        (submitBtn as HTMLButtonElement).click()
-        console.log("Submit clicked")
-    } else {
-        console.log("Submit button not found")
-    }
+    setTimeout(async () => {
+        await fillCommonFields();
+        const resp = await uploadResumeForRunSmartRecruiters("oc-resume-upload", candidate.resume, 'runSmartRecruiters');
+        console.log(". ~ runSmartRecruiters ~ resp:", resp)
+        if (resp) {
+            const nextOrSubmit = await goToNextOrSubmit();
+            if (nextOrSubmit) {
+                setTimeout(async () => {
+                    nextOrSubmit.click()
+                }, 3000)
+                setTimeout(async () => {
+                    await nextPagefillCommonFields();
+                    const nextOrSubmit1 = await goToNextOrSubmit();
+                    if (nextOrSubmit1) {
+                        nextOrSubmit1.focus();
+                        setTimeout(() => nextOrSubmit1.click(), 4000)
+                    }
+                }, 5000)
+            }
+        }
+        //setTimeout(() => clickButton("Submit"), 3000)
+    }, 2500)
 }
 
 window.addEventListener("load", () => {
